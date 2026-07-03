@@ -6,6 +6,18 @@ import { loadData, saveCollection } from './storage.js';
 let collectionEditing = false;
 let compareFormVisible = true;
 
+const SAMPLE_COLLECTION = `Figurinhas App - Lista
+Eua Méx Can 26
+Faltantes
+MEX 🇲🇽: 1, 17, 18
+BRA 🇧🇷: 5, 8, 14
+ARG 🇦🇷: 3, 9, 11
+Repetidas
+RSA 🇿🇦: 3, 6, 19
+ESP 🇪🇸: 7, 15
+Baixe o app
+https://www.figuritas.app/pt/baixar`;
+
 const $ = (sel) => document.querySelector(sel);
 
 function formatDate(iso) {
@@ -45,56 +57,25 @@ function renderCollectionList(title, collection, teams) {
   return `<h3>${title}</h3><ul class="team-list">${items}</ul>`;
 }
 
-function switchTab(tabName) {
-  const tab = $(`#tab-${tabName}`);
-  const panel = $(`#panel-${tabName}`);
-  if (!tab || !panel) return;
+function showPanel(panelName) {
+  const collectionPanel = $('#panel-collection');
+  const comparePanel = $('#panel-compare');
+  const showCollection = panelName === 'collection';
 
-  document.querySelectorAll('.tab').forEach((t) => {
-    const isActive = t.dataset.tab === tabName;
-    t.classList.toggle('active', isActive);
-    t.setAttribute('aria-selected', String(isActive));
-  });
-
-  document.querySelectorAll('.panel').forEach((p) => {
-    const isActive = p.id === `panel-${tabName}`;
-    p.classList.toggle('active', isActive);
-    p.hidden = !isActive;
-  });
+  collectionPanel.classList.toggle('active', showCollection);
+  collectionPanel.hidden = !showCollection;
+  comparePanel.classList.toggle('active', !showCollection);
+  comparePanel.hidden = showCollection;
 }
 
 function updateNavigation(data) {
-  const nav = $('#main-nav');
-  const tabCollection = $('#tab-collection');
-  const tabCompare = $('#tab-compare');
   const hasCollection = !!data.myCollection;
 
-  if (!hasCollection) {
-    nav.classList.remove('hidden');
-    tabCollection.classList.remove('hidden');
-    tabCompare.classList.add('hidden');
-    switchTab('collection');
-    return;
-  }
-
-  if (collectionEditing) {
-    nav.classList.remove('hidden');
-    tabCollection.classList.remove('hidden');
-    tabCompare.classList.add('hidden');
-    switchTab('collection');
+  if (!hasCollection || collectionEditing) {
+    showPanel('collection');
   } else {
-    nav.classList.add('hidden');
-    switchTab('compare');
+    showPanel('compare');
   }
-}
-
-function initTabs() {
-  document.querySelectorAll('.tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
-      if (tab.classList.contains('hidden')) return;
-      switchTab(tab.dataset.tab);
-    });
-  });
 }
 
 function renderCollectionSummary(data) {
@@ -102,6 +83,7 @@ function renderCollectionSummary(data) {
   const previewEl = $('#collection-preview');
 
   updateCollectionFormVisibility(data);
+  updateOnboardingVisibility(data);
   updateNavigation(data);
   updateCompareFooter(data);
 
@@ -173,6 +155,11 @@ function bindCopyButton() {
   });
 }
 
+function updateOnboardingVisibility(data) {
+  const onboarding = $('#onboarding');
+  onboarding.classList.toggle('hidden', !!data.myCollection);
+}
+
 function updateCollectionFormVisibility(data) {
   const form = $('#collection-form');
   const hasCollection = !!data.myCollection;
@@ -223,8 +210,14 @@ function initCollection() {
     collectionEditing = true;
     const data = loadData();
     updateCollectionFormVisibility(data);
+    updateOnboardingVisibility(data);
     updateNavigation(data);
     updateCompareFooter(data);
+    inputEl.focus();
+  });
+
+  $('#btn-show-example').addEventListener('click', () => {
+    inputEl.value = SAMPLE_COLLECTION;
     inputEl.focus();
   });
 
@@ -305,7 +298,6 @@ function initCompare() {
 }
 
 function init() {
-  initTabs();
   initCollection();
   initCompare();
 
@@ -317,6 +309,7 @@ function init() {
   updateComparePanel(data);
   updateCompareFormVisibility();
   updateCompareFooter(data);
+  updateOnboardingVisibility(data);
 }
 
 init();

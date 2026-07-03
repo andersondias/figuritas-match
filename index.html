@@ -12,18 +12,24 @@
     <p class="subtitle">Encontre trocas de figurinhas a partir de listas do WhatsApp</p>
   </header>
 
-  <nav id="main-nav" class="tabs" role="tablist">
-    <button id="tab-collection" class="tab active" data-tab="collection" role="tab" aria-selected="true">Minha Coleção</button>
-    <button id="tab-compare" class="tab" data-tab="compare" role="tab" aria-selected="false">Comparar</button>
-  </nav>
-
   <main>
     <section id="panel-collection" class="panel active" role="tabpanel">
+      <div id="onboarding" class="card onboarding">
+        <p class="onboarding-intro">Encontre trocas de figurinhas comparando sua lista com a de amigos.</p>
+        <h2 class="onboarding-title">Como funciona</h2>
+        <ol class="steps">
+          <li>No Figurinhas App, toque em compartilhar e copie a mensagem da sua lista.</li>
+          <li>Cole a mensagem abaixo e toque em Analisar e Salvar.</li>
+          <li>Depois, cole a lista de um amigo para ver as trocas possíveis e enviar a mensagem pronta pelo WhatsApp.</li>
+        </ol>
+      </div>
+
       <div id="collection-form" class="card">
         <label for="collection-input">Cole sua lista do Figurinhas App</label>
         <textarea id="collection-input" rows="12" placeholder="Figurinhas App - Lista&#10;Eua Méx Can 26&#10;Faltantes&#10;..."></textarea>
         <div class="actions">
           <button id="btn-parse-collection" class="btn primary">Analisar e Salvar</button>
+          <button id="btn-show-example" class="btn secondary" type="button">Ver exemplo</button>
         </div>
       </div>
 

@@ -85,6 +85,33 @@ header h1 {
   margin-bottom: 1rem;
 }
 
+.onboarding-intro {
+  margin: 0 0 0.75rem;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.onboarding-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+}
+
+.steps {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.steps li {
+  padding: 0.25rem 0;
+}
+
+.steps li::marker {
+  font-weight: 600;
+  color: var(--primary);
+}
+
 label {
   display: block;
   font-weight: 600;
