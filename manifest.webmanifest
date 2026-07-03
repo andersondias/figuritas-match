@@ -1,0 +1,17 @@
+{
+  "name": "Figuritas Match",
+  "short_name": "Figuritas Match",
+  "description": "Compare listas e encontre trocas de figurinhas.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#1f7d42",
+  "theme_color": "#1f7d42",
+  "icons": [
+    {
+      "src": "assets/icons/football-icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
+    }
+  ]
+}
