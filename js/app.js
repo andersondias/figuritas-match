@@ -1,7 +1,7 @@
-import { parseMessage, countStickers } from './parser.js';
-import { compareCollections, parseTeamKey, formatWhatsAppMessage } from './compare.js';
-import { sortTeamEntries } from './teams.js';
-import { loadData, saveCollection } from './storage.js';
+import { parseMessage, countStickers } from './parser.js?v=2';
+import { compareCollections, parseTeamKey, formatWhatsAppMessage } from './compare.js?v=2';
+import { sortTeamEntries } from './teams.js?v=2';
+import { loadData, saveCollection } from './storage.js?v=2';
 
 let collectionEditing = false;
 let compareFormVisible = true;
