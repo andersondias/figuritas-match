@@ -258,7 +258,9 @@ function initCompare() {
   $('#btn-new-comparison').addEventListener('click', () => {
     compareFormVisible = true;
     resultsEl.classList.add('hidden');
+    resultsEl.innerHTML = '';
     statusEl.classList.add('hidden');
+    $('#compare-input').value = '';
     updateCompareFormVisibility();
     $('#compare-input').focus();
   });
