@@ -1,5 +1,6 @@
 import { parseMessage, countStickers } from './parser.js';
 import { compareCollections, parseTeamKey, formatWhatsAppMessage } from './compare.js';
+import { sortTeamEntries } from './teams.js';
 import { loadData, saveCollection } from './storage.js';
 
 let collectionEditing = false;
@@ -38,8 +39,7 @@ function formatTeamLine(key, numbers, teams) {
 function renderCollectionList(title, collection, teams) {
   const entries = Object.entries(collection);
   if (!entries.length) return `<p class="empty-trade">Nenhuma</p>`;
-  const items = entries
-    .sort(([a], [b]) => a.localeCompare(b))
+  const items = sortTeamEntries(entries)
     .map(([key, nums]) => formatTeamLine(key, nums, teams))
     .join('');
   return `<h3>${title}</h3><ul class="team-list">${items}</ul>`;

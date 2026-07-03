@@ -1,3 +1,5 @@
+import { sortTeamEntries } from './teams.js';
+
 /**
  * Intersect two sorted number arrays.
  */
@@ -57,8 +59,7 @@ export function parseTeamKey(key) {
 }
 
 function formatStickerLines(collection, teams) {
-  return Object.entries(collection)
-    .sort(([a], [b]) => a.localeCompare(b))
+  return sortTeamEntries(Object.entries(collection))
     .map(([key, numbers]) => {
       const { code, emoji } = parseTeamKey(key);
       const displayEmoji = teams[key] || emoji;

@@ -1,5 +1,7 @@
 import { parseMessage, countStickers } from '../js/parser.js';
 import { compareCollections, formatWhatsAppMessage } from '../js/compare.js';
+import { sortTeamEntries } from '../js/teams.js';
+import { teamKey } from '../js/parser.js';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -104,6 +106,15 @@ test('WhatsApp message format', () => {
   if (!msg.includes('Eu tenho interesse nas seguintes figurinhas:')) throw new Error('Missing get section');
   if (!msg.includes('KOR 🇰🇷: 7')) throw new Error('Missing KOR line in get section');
   if (!msg.includes(`Compare suas figurinhas em: ${appUrl}`)) throw new Error('Missing app link');
+});
+
+test('Team order follows album order', () => {
+  const keys = sortTeamEntries(Object.entries(result.youGet)).map(([k]) => k);
+  const korIdx = keys.indexOf(teamKey('KOR', '🇰🇷'));
+  const gerIdx = keys.indexOf(teamKey('GER', '🇩🇪'));
+  const ccIdx = keys.indexOf(teamKey('CC', '🥤'));
+  if (korIdx === -1 || gerIdx === -1 || ccIdx === -1) throw new Error('Expected teams missing');
+  if (korIdx > gerIdx || gerIdx > ccIdx) throw new Error(`Wrong order: ${keys.join(', ')}`);
 });
 
 console.log(`\n${passed} passed, ${failed} failed`);
