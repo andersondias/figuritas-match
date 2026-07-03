@@ -1,4 +1,4 @@
-import { sortTeamEntries } from './teams.js';
+import { sortTeamEntries, teamKeyForCode } from './teams.js';
 
 /**
  * Intersect two sorted number arrays.
@@ -6,6 +6,28 @@ import { sortTeamEntries } from './teams.js';
 function intersect(a, b) {
   const setB = new Set(b);
   return a.filter((n) => setB.has(n)).sort((x, y) => x - y);
+}
+
+function teamCode(key) {
+  const colon = key.indexOf(':');
+  return colon === -1 ? key : key.slice(0, colon);
+}
+
+function stickersForCode(collection, code) {
+  for (const [key, nums] of Object.entries(collection || {})) {
+    if (teamCode(key) === code) return nums;
+  }
+  return [];
+}
+
+function allTeamCodes(...collections) {
+  const codes = new Set();
+  for (const collection of collections) {
+    for (const key of Object.keys(collection || {})) {
+      codes.add(teamCode(key));
+    }
+  }
+  return codes;
 }
 
 /**
@@ -18,17 +40,13 @@ export function compareCollections(mine, theirs) {
   const youGet = {};
   const youGive = {};
 
-  const allKeys = new Set([
-    ...Object.keys(mine.need || {}),
-    ...Object.keys(mine.swaps || {}),
-    ...Object.keys(theirs.need || {}),
-    ...Object.keys(theirs.swaps || {}),
-  ]);
+  const codes = allTeamCodes(mine.need, mine.swaps, theirs.need, theirs.swaps);
 
-  for (const key of allKeys) {
-    const get = intersect(theirs.swaps?.[key] || [], mine.need?.[key] || []);
-    const give = intersect(mine.swaps?.[key] || [], theirs.need?.[key] || []);
+  for (const code of codes) {
+    const get = intersect(stickersForCode(theirs.swaps, code), stickersForCode(mine.need, code));
+    const give = intersect(stickersForCode(mine.swaps, code), stickersForCode(theirs.need, code));
 
+    const key = teamKeyForCode(code);
     if (get.length) youGet[key] = get;
     if (give.length) youGive[key] = give;
   }

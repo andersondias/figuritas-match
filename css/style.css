@@ -332,6 +332,17 @@ input[type="text"]:focus {
   margin: 0;
 }
 
+.no-trade-message {
+  text-align: center;
+  padding: 1.25rem 1rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.no-trade-message p {
+  margin: 0;
+}
+
 /* ---------- Comparison results ---------- */
 
 .totals-bar {

@@ -117,5 +117,64 @@ test('Team order follows album order', () => {
   if (korIdx > gerIdx || gerIdx > ccIdx) throw new Error(`Wrong order: ${keys.join(', ')}`);
 });
 
+const ALBUM_LIST = `Figurinhas que faltam - Álbum Copa 26
+
+GRUPO A:
+MEX: 2, 3, 4, 6, 7. 8, 9, 10, 11, 12, 13, 15, 17, 18
+RSA: 3, 6, 7, 8, 10, 11, 15, 16, 17
+KOR: 1, 2, 4, 5, 6, 9, 11, 13, 14, 16, 17
+SCO:
+GRUPO B:
+CAN: 2, 3, 7, 9, 10, 11, 12, 13, 18, 19
+FWC: 4, 5, 8, 11, 12, 13, 14, 18
+CC: 1, 2`;
+
+const album = parseMessage(ALBUM_LIST);
+
+test('Album list parses as need section', () => {
+  assertEqual(countStickers(album.need), 54, 'album need count');
+  assertEqual(countStickers(album.swaps), 0, 'album swaps');
+});
+
+test('Album list has no warnings', () => {
+  if (album.warnings.length) throw new Error(album.warnings.join('; '));
+});
+
+test('Album list parses period-separated numbers', () => {
+  const mexKey = teamKey('MEX', '🇲🇽');
+  if (!album.need[mexKey]?.includes(7) || !album.need[mexKey]?.includes(8)) {
+    throw new Error(`Expected MEX to include 7 and 8, got ${JSON.stringify(album.need[mexKey])}`);
+  }
+});
+
+test('Album list skips empty teams', () => {
+  const scoKey = teamKey('SCO', '🏴󠁧󠁢󠁳󠁣󠁴󠁿');
+  if (album.need[scoKey]) throw new Error('SCO should be omitted when empty');
+});
+
+test('Album list assigns emojis to team keys', () => {
+  const korKey = teamKey('KOR', '🇰🇷');
+  if (!album.need[korKey]) throw new Error('KOR should use emoji key');
+  assertEqual(album.teams[korKey], '🇰🇷', 'KOR emoji');
+});
+
+const albumCompare = compareCollections(
+  { need: portuguese.need, swaps: portuguese.swaps },
+  { need: album.need, swaps: album.swaps }
+);
+
+test('Album need format matches swaps by team code', () => {
+  const rsaKey = teamKey('RSA', '🇿🇦');
+  if (!albumCompare.youGive[rsaKey]?.includes(3)) {
+    throw new Error(`Expected RSA:3 in youGive, got ${JSON.stringify(albumCompare.youGive[rsaKey])}`);
+  }
+});
+
+test('Album format WhatsApp output uses emojis', () => {
+  const teams = { ...portuguese.teams, ...album.teams };
+  const msg = formatWhatsAppMessage(albumCompare.youGive, albumCompare.youGet, teams, 'https://example.com');
+  if (!msg.includes('RSA 🇿🇦: 3')) throw new Error('Missing emoji in album compare output');
+});
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed > 0 ? 1 : 0);

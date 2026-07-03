@@ -1,6 +1,6 @@
-import { parseMessage, countStickers } from './parser.js?v=2';
-import { compareCollections, parseTeamKey, formatWhatsAppMessage } from './compare.js?v=2';
-import { sortTeamEntries } from './teams.js?v=2';
+import { parseMessage, countStickers } from './parser.js?v=3';
+import { compareCollections, parseTeamKey, formatWhatsAppMessage } from './compare.js?v=3';
+import { sortTeamEntries } from './teams.js?v=3';
 import { loadData, saveCollection } from './storage.js?v=2';
 
 let collectionEditing = false;
@@ -141,7 +141,19 @@ function renderCollectionSummary(data) {
 
 function renderCompareResults(result, teams) {
   const { youGet, youGive, totals } = result;
-  const whatsappMessage = formatWhatsAppMessage(youGive, youGet, teams, getAppUrl());
+  const hasTrades = totals.youGet > 0 || totals.youGive > 0;
+
+  const tradeSection = hasTrades
+    ? `
+    <div class="whatsapp-message card">
+      <h3>Mensagem para WhatsApp</h3>
+      <pre id="whatsapp-text" class="whatsapp-text">${escapeHtml(formatWhatsAppMessage(youGive, youGet, teams, getAppUrl()))}</pre>
+      <button id="btn-copy-whatsapp" class="btn">Copiar mensagem</button>
+    </div>`
+    : `
+    <div class="card no-trade-message">
+      <p>Não há trocas disponíveis entre vocês.</p>
+    </div>`;
 
   return `
     <div class="totals-bar">
@@ -154,11 +166,7 @@ function renderCompareResults(result, teams) {
         <span class="lbl">Você oferece</span>
       </div>
     </div>
-    <div class="whatsapp-message card">
-      <h3>Mensagem para WhatsApp</h3>
-      <pre id="whatsapp-text" class="whatsapp-text">${escapeHtml(whatsappMessage)}</pre>
-      <button id="btn-copy-whatsapp" class="btn">Copiar mensagem</button>
-    </div>
+    ${tradeSection}
   `;
 }
 
@@ -322,7 +330,9 @@ function initCompare() {
 
     resultsEl.innerHTML = renderCompareResults(comparison, mergedTeams);
     resultsEl.classList.remove('hidden');
-    bindCopyButton();
+    if (comparison.totals.youGet > 0 || comparison.totals.youGive > 0) {
+      bindCopyButton();
+    }
 
     compareFormVisible = false;
     updateCompareFormVisibility();
