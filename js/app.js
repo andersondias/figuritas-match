@@ -30,6 +30,28 @@ function showStatus(el, message, type = 'success') {
   el.classList.remove('hidden');
 }
 
+async function pasteFromClipboard(textarea, statusEl) {
+  if (!navigator.clipboard?.readText) {
+    showStatus(statusEl, 'Use o toque longo no campo para colar.', 'warning');
+    textarea.focus();
+    return;
+  }
+
+  try {
+    const text = await navigator.clipboard.readText();
+    if (!text.trim()) {
+      showStatus(statusEl, 'Nada para colar. Copie a lista no WhatsApp primeiro.', 'warning');
+      return;
+    }
+    textarea.value = text;
+    textarea.focus();
+    statusEl.classList.add('hidden');
+  } catch {
+    showStatus(statusEl, 'Não foi possível colar. Use o toque longo no campo.', 'warning');
+    textarea.focus();
+  }
+}
+
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
@@ -113,7 +135,7 @@ function renderCollectionSummary(data) {
   previewEl.innerHTML =
     renderCollectionList('Faltantes', need, data.teams) +
     renderCollectionList('Repetidas', swaps, data.teams) +
-    `<p class="meta" style="color:var(--muted);font-size:0.8rem;margin-top:0.75rem">Último salvamento: ${updated}</p>`;
+    `<p class="meta">Último salvamento: ${updated}</p>`;
   previewEl.classList.remove('hidden');
 }
 
@@ -123,14 +145,19 @@ function renderCompareResults(result, teams) {
 
   return `
     <div class="totals-bar">
-      <div>Você recebe <strong>${totals.youGet}</strong> · Você oferece <strong>${totals.youGive}</strong></div>
+      <div class="total-chip receive">
+        <span class="num">${totals.youGet}</span>
+        <span class="lbl">Você recebe</span>
+      </div>
+      <div class="total-chip offer">
+        <span class="num">${totals.youGive}</span>
+        <span class="lbl">Você oferece</span>
+      </div>
     </div>
     <div class="whatsapp-message card">
-      <div class="whatsapp-header">
-        <h3>Mensagem para WhatsApp</h3>
-        <button id="btn-copy-whatsapp" class="btn primary">Copiar</button>
-      </div>
+      <h3>Mensagem para WhatsApp</h3>
       <pre id="whatsapp-text" class="whatsapp-text">${escapeHtml(whatsappMessage)}</pre>
+      <button id="btn-copy-whatsapp" class="btn">Copiar mensagem</button>
     </div>
   `;
 }
@@ -145,12 +172,12 @@ function bindCopyButton() {
     try {
       await navigator.clipboard.writeText(text);
       btn.textContent = 'Copiado!';
-      setTimeout(() => { btn.textContent = 'Copiar'; }, 2000);
+      setTimeout(() => { btn.textContent = 'Copiar mensagem'; }, 2000);
     } catch {
       textEl.select?.();
       document.execCommand('copy');
       btn.textContent = 'Copiado!';
-      setTimeout(() => { btn.textContent = 'Copiar'; }, 2000);
+      setTimeout(() => { btn.textContent = 'Copiar mensagem'; }, 2000);
     }
   });
 }
@@ -219,6 +246,11 @@ function initCollection() {
   $('#btn-show-example').addEventListener('click', () => {
     inputEl.value = SAMPLE_COLLECTION;
     inputEl.focus();
+    statusEl.classList.add('hidden');
+  });
+
+  $('#btn-paste-collection').addEventListener('click', () => {
+    pasteFromClipboard(inputEl, statusEl);
   });
 
   $('#btn-parse-collection').addEventListener('click', () => {
@@ -263,6 +295,10 @@ function initCompare() {
     $('#compare-input').value = '';
     updateCompareFormVisibility();
     $('#compare-input').focus();
+  });
+
+  $('#btn-paste-compare').addEventListener('click', () => {
+    pasteFromClipboard($('#compare-input'), statusEl);
   });
 
   $('#btn-compare').addEventListener('click', () => {
