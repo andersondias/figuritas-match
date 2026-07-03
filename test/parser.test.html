@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Parser Tests</title>
+  <style>
+    body { font-family: monospace; padding: 1rem; }
+    .pass { color: green; }
+    .fail { color: red; }
+  </style>
+</head>
+<body>
+  <h1>Parser &amp; Compare Tests</h1>
+  <pre id="output"></pre>
+  <script type="module">
+    import { parseMessage, countStickers } from '../js/parser.js';
+    import { compareCollections } from '../js/compare.js';
+
+    const ENGLISH_LIST = `Figuritas App - List
+Usa Mex Can 26
+I need
+FWC 🌎: 5, 7
+FWC 📜: 13, 14, 16, 19
+MEX 🇲🇽: 1, 17, 18, 20
+RSA 🇿🇦: 16
+KOR 🇰🇷: 1, 2, 7, 9, 14, 18
+CZE 🇨🇿: 3, 16, 20
+CAN 🇨🇦: 3, 4, 9, 11, 13, 14, 17, 18
+BIH 🇧🇦: 3, 4, 5, 13, 20
+QAT 🇶🇦: 1, 2, 3, 5, 17, 18
+SUI 🇨🇭: 18, 19
+BRA 🇧🇷: 5, 8, 14, 15, 16, 18, 19
+MAR 🇲🇦: 1, 9, 15
+HAI 🇭🇹: 1, 5, 8, 9, 11, 13, 15, 16, 18, 19, 20
+SCO 🏴󠁧󠁢󠁳󠁣󠁴󠁿: 1, 5, 14, 17, 19, 20
+USA 🇺🇸: 1, 2, 3, 4, 7, 8, 10, 11, 12
+PAR 🇵🇾: 9
+AUS 🇦🇺: 1, 3, 15, 18
+TUR 🇹🇷: 1, 2, 3, 5, 6, 7, 9, 20
+GER 🇩🇪: 1, 2, 3, 6, 7, 10, 11, 15, 16, 18
+CUW 🇨🇼: 1, 2, 5, 6, 8, 9, 10, 12, 13, 14, 15, 16, 19, 20
+CIV 🇨🇮: 1, 2, 6, 17
+ECU 🇪🇨: 2, 8, 12, 13
+NED 🇳🇱: 2, 5, 6, 8, 9, 10, 12, 15, 17, 18, 19, 20
+JPN 🇯🇵: 3, 7, 9, 15, 17
+SWE 🇸🇪: 8, 9, 10, 11, 12, 14, 17, 18
+TUN 🇹🇳: 3, 20
+BEL 🇧🇪: 1, 4, 8, 11, 13, 16, 20
+EGY 🇪🇬: 9, 10, 13, 18, 19
+IRN 🇮🇷: 1, 2, 6, 7, 10, 11, 18, 20
+NZL 🇳🇿: 2, 4, 5, 6, 9, 11, 13, 14, 18
+ESP 🇪🇸: 2, 3, 5, 6, 10, 12, 14, 15, 18, 19
+CPV 🇨🇻: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 18, 19, 20
+KSA 🇸🇦: 1, 3, 11, 16
+URU 🇺🇾: 5
+FRA 🇫🇷: 1, 2, 3, 4, 7, 8, 11, 12, 13, 17, 18
+SEN 🇸🇳: 3, 8, 11, 13, 18
+IRQ 🇮🇶: 3, 4, 5, 7, 11, 12, 13, 16, 17
+NOR 🇳🇴: 3, 7, 9, 14, 15, 16, 20
+ARG 🇦🇷: 1, 3, 9, 11, 15
+ALG 🇩🇿: 4, 7, 17, 18, 20
+AUT 🇦🇹: 1, 3, 4, 6, 9, 10, 11, 14, 15, 18
+JOR 🇯🇴: 5, 6, 9, 10, 13, 14
+POR 🇵🇹: 4, 8, 9, 12, 14, 17, 19, 20
+COD 🇨🇩: 4, 9, 10, 14, 15, 16, 18, 19, 20
+UZB 🇺🇿: 5, 7, 9, 11, 13, 14, 16
+COL 🇨🇴: 2, 9, 12, 13, 17, 19, 20
+ENG 🏴󠁧󠁢󠁥󠁮󠁧󠁿: 1, 3, 4, 7, 8, 11, 12, 15, 16, 18, 20
+CRO 🇭🇷: 1
+GHA 🇬🇭: 1, 3, 7, 16, 20
+PAN 🇵🇦: 1, 7, 9, 11, 14, 16, 20
+CC 🥤: 1, 2, 3, 4, 6, 8, 10, 11, 14
+Swaps
+RSA 🇿🇦: 3, 6, 19
+CZE 🇨🇿: 4, 9
+MAR 🇲🇦: 8
+EGY 🇪🇬: 14
+ESP 🇪🇸: 7
+KSA 🇸🇦: 14
+SEN 🇸🇳: 2, 9
+NOR 🇳🇴: 18
+ALG 🇩🇿: 6
+AUT 🇦🇹: 17
+JOR 🇯🇴: 7, 16, 20
+UZB 🇺🇿: 17
+CRO 🇭🇷: 8
+GHA 🇬🇭: 4, 6, 10, 13, 15
+PAN 🇵🇦: 2
+Download the app
+https://www.figuritas.app/download`;
+
+    const PORTUGUESE_LIST = `Figurinhas App - Lista
+Eua Méx Can 26
+Faltantes
+FWC 🌎: 5
+TUR 🇹🇷: 8
+NED 🇳🇱: 1
+JPN 🇯🇵: 4
+SWE 🇸🇪: 10
+URU 🇺🇾: 4
+COD 🇨🇩: 5
+GHA 🇬🇭: 18
+Repetidas
+FWC 📜: 11, 15
+RSA 🇿🇦: 3, 5, 12, 20
+KOR 🇰🇷: 3, 7
+CZE 🇨🇿: 20
+CAN 🇨🇦: 10
+QAT 🇶🇦: 9, 13
+SUI 🇨🇭: 2, 6, 10, 14
+MAR 🇲🇦: 9
+SCO 🏴󠁧󠁢󠁳󠁣󠁴󠁿: 2, 6, 13
+USA 🇺🇸: 3, 15, 16, 17, 20
+PAR 🇵🇾: 3, 13
+AUS 🇦🇺: 13
+TUR 🇹🇷: 12, 14, 18
+GER 🇩🇪: 5, 9, 10, 15
+CUW 🇨🇼: 5, 9, 10, 15
+CIV 🇨🇮: 2, 4, 6, 10
+ECU 🇪🇨: 15
+NED 🇳🇱: 9
+JPN 🇯🇵: 6
+SWE 🇸🇪: 3, 7
+TUN 🇹🇳: 14, 15, 18
+BEL 🇧🇪: 7, 13, 17
+EGY 🇪🇬: 10
+NZL 🇳🇿: 18
+ESP 🇪🇸: 3, 19
+CPV 🇨🇻: 2, 6
+KSA 🇸🇦: 13
+URU 🇺🇾: 15, 16, 19, 20
+FRA 🇫🇷: 4, 10
+SEN 🇸🇳: 3, 4, 8, 9, 15, 19
+IRQ 🇮🇶: 10, 18
+NOR 🇳🇴: 6, 10, 15
+ARG 🇦🇷: 11
+ALG 🇩🇿: 6, 10
+AUT 🇦🇹: 6, 13, 19
+JOR 🇯🇴: 3
+POR 🇵🇹: 1, 3
+COD 🇨🇩: 10
+UZB 🇺🇿: 2, 20
+ENG 🏴󠁧󠁢󠁥󠁮󠁧󠁿: 18
+GHA 🇬🇭: 1, 14, 20
+PAN 🇵🇦: 5, 9, 14, 18
+CC 🥤: 8
+Baixe o app
+https://www.figuritas.app/pt/baixar`;
+
+    const output = document.getElementById('output');
+    let passed = 0;
+    let failed = 0;
+
+    function test(name, fn) {
+      try {
+        fn();
+        output.innerHTML += `<span class="pass">PASS</span> ${name}\n`;
+        passed++;
+      } catch (err) {
+        output.innerHTML += `<span class="fail">FAIL</span> ${name}: ${err.message}\n`;
+        failed++;
+      }
+    }
+
+    function assertEqual(actual, expected, label) {
+      const a = JSON.stringify(actual);
+      const e = JSON.stringify(expected);
+      if (a !== e) throw new Error(`${label}: expected ${e}, got ${a}`);
+    }
+
+    const english = parseMessage(ENGLISH_LIST);
+    const portuguese = parseMessage(PORTUGUESE_LIST);
+
+    test('English list parses need count', () => {
+      assertEqual(countStickers(english.need), 333, 'need count');
+    });
+
+    test('English list parses swap count', () => {
+      assertEqual(countStickers(english.swaps), 25, 'swap count');
+    });
+
+    test('English list has no warnings', () => {
+      if (english.warnings.length) throw new Error(english.warnings.join('; '));
+    });
+
+    test('English FWC entries are separate keys', () => {
+      const fwcKeys = Object.keys(english.need).filter(k => k.startsWith('FWC:'));
+      if (fwcKeys.length !== 2) throw new Error(`Expected 2 FWC keys, got ${fwcKeys.length}`);
+    });
+
+    test('Portuguese list parses faltantes', () => {
+      assertEqual(countStickers(portuguese.need), 8, 'faltantes count');
+    });
+
+    test('Portuguese list parses repetidas', () => {
+      assertEqual(countStickers(portuguese.swaps), 99, 'repetidas count');
+    });
+
+    test('Portuguese list has no warnings', () => {
+      if (portuguese.warnings.length) throw new Error(portuguese.warnings.join('; '));
+    });
+
+    test('Footer stops parsing', () => {
+      if (english.swaps['DOWNLOAD']) throw new Error('Footer line was parsed as team');
+    });
+
+    const result = compareCollections(
+      { need: english.need, swaps: english.swaps },
+      { need: portuguese.need, swaps: portuguese.swaps }
+    );
+
+    test('Comparison finds KOR match (you get 7)', () => {
+      const korKey = Object.keys(result.youGet).find(k => k.startsWith('KOR:'));
+      if (!korKey || !result.youGet[korKey].includes(7)) {
+        throw new Error(`Expected KOR:7 in youGet, got ${JSON.stringify(result.youGet[korKey])}`);
+      }
+    });
+
+    test('Comparison finds GER match (you get 10, 15)', () => {
+      const gerKey = Object.keys(result.youGet).find(k => k.startsWith('GER:'));
+      if (!gerKey) throw new Error('Expected GER in youGet');
+      assertEqual(result.youGet[gerKey], [10, 15], 'GER numbers');
+    });
+
+    test('Comparison totals are correct', () => {
+      if (result.totals.youGet !== 33) throw new Error(`Expected youGet 33, got ${result.totals.youGet}`);
+      if (result.totals.youGive !== 0) throw new Error(`Expected youGive 0, got ${result.totals.youGive}`);
+      if (result.totals.fairTrade !== 0) throw new Error('fairTrade should be 0 when youGive is 0');
+    });
+
+    output.innerHTML += `\n${passed} passed, ${failed} failed\n`;
+  </script>
+</body>
+</html>

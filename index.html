@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Figuritas Match</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Figuritas Match</h1>
+    <p class="subtitle">Encontre trocas de figurinhas a partir de listas do WhatsApp</p>
+  </header>
+
+  <nav id="main-nav" class="tabs" role="tablist">
+    <button id="tab-collection" class="tab active" data-tab="collection" role="tab" aria-selected="true">Minha Coleção</button>
+    <button id="tab-compare" class="tab" data-tab="compare" role="tab" aria-selected="false">Comparar</button>
+  </nav>
+
+  <main>
+    <section id="panel-collection" class="panel active" role="tabpanel">
+      <div id="collection-form" class="card">
+        <label for="collection-input">Cole sua lista do Figurinhas App</label>
+        <textarea id="collection-input" rows="12" placeholder="Figurinhas App - Lista&#10;Eua Méx Can 26&#10;Faltantes&#10;..."></textarea>
+        <div class="actions">
+          <button id="btn-parse-collection" class="btn primary">Analisar e Salvar</button>
+        </div>
+      </div>
+
+      <div id="collection-status" class="status hidden"></div>
+      <div id="collection-preview" class="preview hidden"></div>
+      <div id="collection-summary" class="summary hidden"></div>
+    </section>
+
+    <section id="panel-compare" class="panel" role="tabpanel" hidden>
+      <div id="compare-no-collection" class="notice hidden">
+        Salve sua coleção antes de comparar com outros.
+      </div>
+
+      <div id="compare-form" class="card">
+        <label for="compare-input">Cole a lista de outro usuário</label>
+        <textarea id="compare-input" rows="12" placeholder="Figurinhas App - Lista&#10;Eua Méx Can 26&#10;Faltantes&#10;..."></textarea>
+        <div class="actions">
+          <button id="btn-compare" class="btn primary">Comparar</button>
+        </div>
+      </div>
+
+      <div id="compare-status" class="status hidden"></div>
+      <div id="compare-results" class="results hidden"></div>
+
+      <div id="compare-toolbar" class="actions hidden">
+        <button id="btn-new-comparison" class="btn secondary">Nova comparação</button>
+      </div>
+
+      <div id="compare-footer" class="compare-footer hidden">
+        <button id="btn-edit-collection" class="btn secondary">Atualizar suas figurinhas</button>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
