@@ -1,13 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Soccer ball icon">
   <defs>
-    <radialGradient id="bg" cx="35%" cy="30%" r="75%">
-      <stop offset="0%" stop-color="#49b06a"/>
+    <radialGradient id="field" cx="30%" cy="25%" r="80%">
+      <stop offset="0%" stop-color="#58c37a"/>
       <stop offset="100%" stop-color="#1f7d42"/>
     </radialGradient>
+    <radialGradient id="ballShade" cx="35%" cy="30%" r="75%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e7eaef"/>
+    </radialGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#0b3a20" flood-opacity="0.35"/>
+    </filter>
+    <clipPath id="ballClip">
+      <circle cx="256" cy="256" r="178"/>
+    </clipPath>
   </defs>
-  <rect width="512" height="512" rx="110" fill="url(#bg)"/>
-  <circle cx="256" cy="256" r="150" fill="#fff"/>
-  <path d="M256 154 304 188 286 245 226 245 208 188z" fill="#111827"/>
-  <path d="M208 188 170 219 184 272 226 245zM304 188 342 219 328 272 286 245zM184 272 201 323 256 356 226 245zM328 272 311 323 256 356 286 245zM201 323 239 350 273 350 311 323 256 356z" fill="#111827"/>
-  <circle cx="256" cy="256" r="150" fill="none" stroke="#e5e7eb" stroke-width="8"/>
+
+  <rect width="512" height="512" rx="110" fill="url(#field)"/>
+
+  <g filter="url(#shadow)">
+    <circle cx="256" cy="256" r="178" fill="url(#ballShade)"/>
+
+    <g clip-path="url(#ballClip)">
+      <polygon points="256,162 314,204 292,273 220,273 198,204" fill="#0f172a"/>
+
+      <polygon points="198,204 152,240 168,304 220,273" fill="#111827"/>
+      <polygon points="314,204 360,240 344,304 292,273" fill="#111827"/>
+      <polygon points="168,304 190,362 256,404 220,273" fill="#111827"/>
+      <polygon points="344,304 322,362 256,404 292,273" fill="#111827"/>
+      <polygon points="190,362 234,394 278,394 322,362 256,404" fill="#111827"/>
+
+      <polygon points="152,240 118,286 146,338 168,304" fill="#d7dbe2"/>
+      <polygon points="360,240 394,286 366,338 344,304" fill="#d7dbe2"/>
+      <polygon points="146,338 182,388 234,394 190,362" fill="#d7dbe2"/>
+      <polygon points="366,338 330,388 278,394 322,362" fill="#d7dbe2"/>
+      <polygon points="220,273 256,240 292,273 256,316" fill="none" stroke="#202938" stroke-width="8" stroke-linejoin="round"/>
+
+      <path d="M198 204 220 273 168 304M314 204 292 273 344 304M168 304 256 404 344 304M190 362 322 362" fill="none" stroke="#1f2937" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <circle cx="256" cy="256" r="178" fill="none" stroke="#f8fafc" stroke-width="10"/>
+    <ellipse cx="210" cy="188" rx="66" ry="42" fill="#ffffff" opacity="0.3"/>
+  </g>
 </svg>
