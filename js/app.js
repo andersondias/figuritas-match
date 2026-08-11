@@ -1,4 +1,4 @@
-import { parseMessage, countStickers } from './parser.js?v=3';
+import { parseMessage, countStickers } from './parser.js?v=4';
 import { compareCollections, parseTeamKey, formatWhatsAppMessage } from './compare.js?v=3';
 import { sortTeamEntries } from './teams.js?v=3';
 import { loadData, saveCollection } from './storage.js?v=2';

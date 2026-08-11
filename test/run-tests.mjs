@@ -176,5 +176,74 @@ test('Album format WhatsApp output uses emojis', () => {
   if (!msg.includes('RSA 🇿🇦: 3')) throw new Error('Missing emoji in album compare output');
 });
 
+const FIGURINHAS_APP_LIST = `🏆 *Copa 2026*
+🔑 *ZC2UDS*
+
+❌ *FIGURINHAS FALTANDO (125)*
+─────────────
+
+🇲🇽 *MEX* · pg. 8-9
+MEX2, MEX6, MEX10, MEX11
+
+🇰🇷 *KOR* · pg. 12-13
+KOR1, KOR2, KOR4, KOR5
+
+*CZE* · pg. 14-15
+CZE16, CZE17
+
+🇺🇸 *USA* · pg. 32-33
+USA3, USA4, USA7, USA10, USA12
+USA13
+
+*Coleção Coca-Cola* · pg. 111
+CC2, CC3, CC4, CC5, CC6
+CC7, CC8, CC9, CC10, CC12
+CC13, CC14
+
+─────────────
+💬 Vamos trocar? 🤝
+
+📲 Baixe o *Álbum de Figurinhas Copa 2026*:
+▸ Android: https://play.google.com/store/apps/details?id=com.figurinhas.figurinhas_2026
+
+Gerado por *Álbum de Figurinhas 2026*`;
+
+const figurinhasApp = parseMessage(FIGURINHAS_APP_LIST);
+
+test('Figurinhas app list parses faltando section', () => {
+  assertEqual(countStickers(figurinhasApp.need), 28, 'figurinhas app need count');
+  assertEqual(countStickers(figurinhasApp.swaps), 0, 'figurinhas app swaps');
+});
+
+test('Figurinhas app list has no warnings', () => {
+  if (figurinhasApp.warnings.length) throw new Error(figurinhasApp.warnings.join('; '));
+});
+
+test('Figurinhas app parses CODE+number tokens', () => {
+  assertEqual(figurinhasApp.need[teamKey('MEX', '🇲🇽')], [2, 6, 10, 11], 'MEX stickers');
+});
+
+test('Figurinhas app merges continuation lines', () => {
+  assertEqual(figurinhasApp.need[teamKey('USA', '🇺🇸')], [3, 4, 7, 10, 12, 13], 'USA stickers');
+});
+
+test('Figurinhas app maps Coca-Cola to CC', () => {
+  const cc = figurinhasApp.need[teamKey('CC', '🥤')];
+  if (!cc || cc.length !== 12) throw new Error(`Expected 12 CC stickers, got ${JSON.stringify(cc)}`);
+});
+
+test('Figurinhas app parses headers without emoji', () => {
+  assertEqual(figurinhasApp.need[teamKey('CZE', '🇨🇿')], [16, 17], 'CZE stickers');
+});
+
+test('Figurinhas app format compares with existing lists', () => {
+  const mine = {
+    need: {},
+    swaps: { [teamKey('MEX', '🇲🇽')]: [2, 6, 99] },
+  };
+  const comparison = compareCollections(mine, figurinhasApp);
+  assertEqual(comparison.youGive[teamKey('MEX', '🇲🇽')], [2, 6], 'cross-format MEX give');
+});
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed > 0 ? 1 : 0);

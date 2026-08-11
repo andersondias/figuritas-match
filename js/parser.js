@@ -4,18 +4,37 @@ export { teamKey };
 
 const NEED_KEYWORDS = ['i need', 'faltantes', 'necesito'];
 const SWAP_KEYWORDS = ['swaps', 'repetidas', 'repetidas/cambios'];
-const ALBUM_NEED_PATTERNS = [/figurinhas que faltam/i];
-const ALBUM_SWAP_PATTERNS = [/figurinhas que sobram/i, /figurinhas repetidas/i];
+const ALBUM_NEED_PATTERNS = [
+  /figurinhas que faltam/i,
+  /figurinhas faltando/i,
+];
+const ALBUM_SWAP_PATTERNS = [
+  /figurinhas que sobram/i,
+  /figurinhas repetidas/i,
+  /figurinhas para troca/i,
+  /figurinhas sobrando/i,
+];
 const FOOTER_PATTERNS = [
-  /^download the app/i,
-  /^baixe o app/i,
-  /^descarga la app/i,
+  /download the app/i,
+  /baixe o\b/i,
+  /descarga la app/i,
   /figuritas\.app/i,
+  /play\.google\.com/i,
+  /apps\.apple\.com/i,
+  /gerado por/i,
 ];
 
 const APP_TEAM_LINE_REGEX = /^([A-Z]{2,4})\s+(\S+)\s*:\s*([\d.,\s]+)$/u;
 const ALBUM_TEAM_LINE_REGEX = /^([A-Z]{2,4})\s*:\s*([\d.,\s]*)$/u;
 const GROUP_LINE_REGEX = /^grupo\s+[a-z]\s*:?\s*$/i;
+const SEPARATOR_LINE_REGEX = /^[─\-—=_]+$/u;
+const TEAM_HEADER_REGEX = /(?:^|[\s])\*([^*]+)\*(?:\s*[·•]\s*pg\.?\s*[\d\-]+)?\s*$/iu;
+const STICKER_TOKEN_REGEX = /\b([A-Z]{2,4})(\d+)\b/gi;
+const SPECIAL_TEAM_NAMES = new Map([
+  ['coleção coca-cola', 'CC'],
+  ['colecao coca-cola', 'CC'],
+  ['coca-cola', 'CC'],
+]);
 
 function parseNumbers(raw) {
   return raw
@@ -38,7 +57,35 @@ function detectSection(line) {
 }
 
 function isSkippableLine(line) {
-  return GROUP_LINE_REGEX.test(line);
+  if (GROUP_LINE_REGEX.test(line)) return true;
+  if (SEPARATOR_LINE_REGEX.test(line)) return true;
+  if (/vamos trocar/i.test(line)) return true;
+  if (/^🔑/.test(line)) return true;
+  if (/^▸/.test(line)) return true;
+  return false;
+}
+
+function resolveTeamLabel(label) {
+  const trimmed = label.trim();
+  const upper = trimmed.toUpperCase();
+  if (/^[A-Z]{2,4}$/.test(upper) && emojiForCode(upper)) return upper;
+
+  const special = SPECIAL_TEAM_NAMES.get(trimmed.toLowerCase());
+  if (special) return special;
+
+  return null;
+}
+
+function addStickers(section, need, swaps, teams, code, numbers) {
+  if (!numbers.length) return;
+
+  const key = teamKeyForCode(code);
+  const emoji = emojiForCode(code) || teams[key] || '';
+  teams[key] = emoji;
+
+  const target = section === 'need' ? need : swaps;
+  const existing = target[key] || [];
+  target[key] = [...new Set([...existing, ...numbers])].sort((a, b) => a - b);
 }
 
 function storeTeamLine(section, need, swaps, teams, key, emoji, numbers) {
@@ -48,6 +95,27 @@ function storeTeamLine(section, need, swaps, teams, key, emoji, numbers) {
   } else {
     swaps[key] = numbers;
   }
+}
+
+function parseStickerTokenLine(line, section, need, swaps, teams) {
+  const tokens = [...line.matchAll(STICKER_TOKEN_REGEX)];
+  if (!tokens.length) return false;
+
+  const remainder = line
+    .replace(STICKER_TOKEN_REGEX, '')
+    .replace(/[,\s]/g, '');
+  if (remainder.length) return false;
+
+  for (const [, code, numberRaw] of tokens) {
+    addStickers(section, need, swaps, teams, code.toUpperCase(), [parseInt(numberRaw, 10)]);
+  }
+  return true;
+}
+
+function parseTeamHeaderLine(line) {
+  const match = line.match(TEAM_HEADER_REGEX);
+  if (!match) return false;
+  return !!resolveTeamLabel(match[1]);
 }
 
 function parseTeamLine(line, section, need, swaps, teams) {
@@ -67,6 +135,9 @@ function parseTeamLine(line, section, need, swaps, teams) {
     storeTeamLine(section, need, swaps, teams, teamKeyForCode(code), emoji, numbers);
     return true;
   }
+
+  if (parseStickerTokenLine(line, section, need, swaps, teams)) return true;
+  if (parseTeamHeaderLine(line)) return true;
 
   return false;
 }
