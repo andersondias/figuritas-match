@@ -29,7 +29,8 @@ const ALBUM_TEAM_LINE_REGEX = /^([A-Z]{2,4})\s*:\s*([\d.,\s]*)$/u;
 const GROUP_LINE_REGEX = /^grupo\s+[a-z]\s*:?\s*$/i;
 const SEPARATOR_LINE_REGEX = /^[─\-—=_]+$/u;
 const TEAM_HEADER_REGEX = /(?:^|[\s])\*([^*]+)\*(?:\s*[·•]\s*pg\.?\s*[\d\-]+)?\s*$/iu;
-const STICKER_TOKEN_REGEX = /\b([A-Z]{2,4})(\d+)\b/gi;
+const STICKER_TOKEN_REGEX = /\b([A-Z]{2,4})(\d+)\s*(?:\(x\d+\))?/gi;
+const BARE_NUMBER_STICKER_REGEX = /^\d+\s*(?:\(x\d+\))?(?:\s*,\s*\d+\s*(?:\(x\d+\))?)*$/i;
 const SPECIAL_TEAM_NAMES = new Map([
   ['coleção coca-cola', 'CC'],
   ['colecao coca-cola', 'CC'],
@@ -73,6 +74,9 @@ function resolveTeamLabel(label) {
   const special = SPECIAL_TEAM_NAMES.get(trimmed.toLowerCase());
   if (special) return special;
 
+  // Headers like "Copa 2026 (FWC1–FWC4)" — code is in the sticker tokens, not the title.
+  if (/\bFWC\b/i.test(trimmed) || /\(FWC/i.test(trimmed)) return 'FWC';
+
   return null;
 }
 
@@ -99,10 +103,14 @@ function storeTeamLine(section, need, swaps, teams, key, emoji, numbers) {
 
 function parseStickerTokenLine(line, section, need, swaps, teams) {
   const tokens = [...line.matchAll(STICKER_TOKEN_REGEX)];
-  if (!tokens.length) return false;
+  if (!tokens.length) {
+    // Intro stickers like "00 (x1)" under "Somos 26" — no team code to map.
+    return BARE_NUMBER_STICKER_REGEX.test(line);
+  }
 
   const remainder = line
     .replace(STICKER_TOKEN_REGEX, '')
+    .replace(/\(x\d+\)/gi, '')
     .replace(/[,\s]/g, '');
   if (remainder.length) return false;
 
@@ -115,7 +123,9 @@ function parseStickerTokenLine(line, section, need, swaps, teams) {
 function parseTeamHeaderLine(line) {
   const match = line.match(TEAM_HEADER_REGEX);
   if (!match) return false;
-  return !!resolveTeamLabel(match[1]);
+  // Accept known codes and decorative section titles (Somos 26, História da Copa, etc.).
+  resolveTeamLabel(match[1]);
+  return true;
 }
 
 function parseTeamLine(line, section, need, swaps, teams) {

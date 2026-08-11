@@ -245,5 +245,72 @@ test('Figurinhas app format compares with existing lists', () => {
   assertEqual(comparison.youGive[teamKey('MEX', '🇲🇽')], [2, 6], 'cross-format MEX give');
 });
 
+const FIGURINHAS_REPETIDAS_LIST = `🏆 *Copa 2026*
+🔑 *PNNHNU*
+
+📦 *FIGURINHAS REPETIDAS (171)*
+─────────────
+
+*Somos 26* · pg. 0
+00 (x1)
+
+*Copa 2026 (FWC1–FWC4)* · pg. 1
+FWC3 (x1)
+
+🇲🇽 *MEX* · pg. 8-9
+MEX9 (x1), MEX13 (x1)
+
+🇰🇷 *KOR* · pg. 12-13
+KOR9 (x1), KOR16 (x1), KOR20 (x1)
+
+*CZE* · pg. 14-15
+CZE1 (x1), CZE3 (x1), CZE6 (x1), CZE7 (x2), CZE10 (x1)
+CZE11 (x1), CZE15 (x1), CZE20 (x1)
+
+🏴󠁧󠁢󠁥󠁮󠁧󠁿 *ENG* · pg. 98-99
+ENG4 (x1), ENG10 (x3), ENG14 (x1), ENG15 (x2), ENG19 (x1)
+
+*História da Copa (FWC9–FWC19)* · pg. 106-109
+FWC9 (x1), FWC10 (x1), FWC14 (x1)
+
+─────────────
+💬 Vamos trocar? 🤝
+
+📲 Baixe o *Álbum de Figurinhas Copa 2026*:
+Gerado por *Álbum de Figurinhas 2026*`;
+
+const figurinhasRepetidas = parseMessage(FIGURINHAS_REPETIDAS_LIST);
+
+test('Figurinhas repetidas parses as swaps section', () => {
+  assertEqual(countStickers(figurinhasRepetidas.need), 0, 'repetidas need');
+  assertEqual(countStickers(figurinhasRepetidas.swaps), 22, 'repetidas swaps');
+});
+
+test('Figurinhas repetidas has no warnings', () => {
+  if (figurinhasRepetidas.warnings.length) throw new Error(figurinhasRepetidas.warnings.join('; '));
+});
+
+test('Figurinhas repetidas ignores quantity suffixes', () => {
+  assertEqual(figurinhasRepetidas.swaps[teamKey('CZE', '🇨🇿')], [1, 3, 6, 7, 10, 11, 15, 20], 'CZE with x2');
+  assertEqual(figurinhasRepetidas.swaps[teamKey('ENG', '🏴󠁧󠁢󠁥󠁮󠁧󠁿')], [4, 10, 14, 15, 19], 'ENG with x3');
+});
+
+test('Figurinhas repetidas merges FWC sections', () => {
+  assertEqual(figurinhasRepetidas.swaps[teamKey('FWC', '🌎')], [3, 9, 10, 14], 'FWC stickers');
+});
+
+test('Figurinhas faltando vs repetidas finds trades', () => {
+  const mine = {
+    need: {
+      [teamKey('KOR', '🇰🇷')]: [9, 16, 99],
+      [teamKey('MEX', '🇲🇽')]: [9],
+    },
+    swaps: {},
+  };
+  const comparison = compareCollections(mine, figurinhasRepetidas);
+  assertEqual(comparison.youGet[teamKey('KOR', '🇰🇷')], [9, 16], 'get KOR from repetidas');
+  assertEqual(comparison.youGet[teamKey('MEX', '🇲🇽')], [9], 'get MEX from repetidas');
+});
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed > 0 ? 1 : 0);
