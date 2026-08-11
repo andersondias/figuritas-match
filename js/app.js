@@ -244,6 +244,8 @@ function initCollection() {
   $('#btn-edit-collection').addEventListener('click', () => {
     collectionEditing = true;
     const data = loadData();
+    inputEl.value = '';
+    statusEl.classList.add('hidden');
     updateCollectionFormVisibility(data);
     updateOnboardingVisibility(data);
     updateNavigation(data);
@@ -350,9 +352,6 @@ function init() {
   initCompare();
 
   const data = loadData();
-  if (data.myCollection?.rawText) {
-    $('#collection-input').value = data.myCollection.rawText;
-  }
   renderCollectionSummary(data);
   updateComparePanel(data);
   updateCompareFormVisibility();
